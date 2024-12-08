@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 from numpy import linalg
 
-from ppga import base, tools
+from ppga import algorithms, base, tools
 
 warnings.filterwarnings("ignore")
 
@@ -40,7 +40,7 @@ def evaluate(
     return (distance / right_target,)
 
 
-def create_toolbox(X: np.ndarray) -> base.ToolBox:
+def toolbox(X: np.ndarray) -> base.ToolBox:
     mu = X.mean(axis=0)
     sigma = X.std(axis=0)
 
@@ -51,3 +51,34 @@ def create_toolbox(X: np.ndarray) -> base.ToolBox:
     toolbox.set_mutation(tools.mut_normal, mu=mu, sigma=sigma, indpb=0.8)
 
     return toolbox
+
+
+def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox):
+    # update the toolbox with new generation and evaluation
+    toolbox.set_generation(generate_copy, point=point)
+
+    toolbox.set_evaluation(
+        evaluate,
+        point=point,
+        target=target,
+        blackbox=blackbox,
+        epsilon=0.0,
+        alpha=0.0,
+    )
+
+
+def run(toolbox: base.ToolBox, population_size: int):
+    # run the genetic algorithm on one point with a specific target class
+    hof = base.HallOfFame((population_size))
+    population, stats = algorithms.pelitist(
+        toolbox=toolbox,
+        population_size=population_size,
+        keep=0.1,
+        cxpb=0.8,
+        mutpb=0.2,
+        max_generations=100,
+        hall_of_fame=hof,
+        workers_num=16,
+    )
+
+    return hof

@@ -1,3 +1,3 @@
-from .explain import explain
+from .explainability import explain
 
 __all__ = ["explain"]
