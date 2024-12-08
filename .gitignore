@@ -1,0 +1,12 @@
+.vscode/
+
+# python
+.env/
+__pycache__/
+build/
+dist/
+utils.egg-info/
+.ipynb_checkpoints/
+logs/
+results/
+
