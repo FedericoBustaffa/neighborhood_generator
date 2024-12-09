@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
@@ -25,9 +26,9 @@ if __name__ == "__main__":
 
     # train the model
     clf = MLPClassifier()
-    clf.fit(X_train)
+    clf.fit(X_train, y_train)
 
     # these will be the data to explain
     to_explain = clf.predict(X_test)
 
-    index, results = explain.explain(clf, X_test, to_explain)
+    index, results = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain))

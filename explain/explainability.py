@@ -4,33 +4,25 @@ from explain import genetic
 
 
 def build_stats_df(results: list[dict], blackbox) -> dict[str, list]:
-    stats = {
-        "point": [],
-        "class": [],
-        "target": [],
-        "min_fitness": [],
-        "mean_fitness": [],
-        "max_fitness": [],
-        "accuracy": [],
-    }
+    # first processing the hall of fame results
+    targets = []
+    hofs = []
+    for i in results:
+        targets.append(i["target"])
+        hofs.append(i["hall_of_fame"])
 
-    stats["point"] = results["point"]
-    stats["class"] = results["class"]
-    stats["target"] = results["target"]
+    # extract fitness scores
+    scores = np.array([[i.fitness for i in h] for h in hofs])
 
-    for hof, target in zip(results["hall_of_fame"], results["target"]):
-        scores = np.asarray([ind.fitness for ind in hof])
-        scores = scores[~np.isinf(scores)]
+    # extract the sythetic points
+    synth_points = [[i.chromosome for i in h] for h in hofs]
 
-        synth_points = np.asarray([ind.chromosome for ind in hof])
-        outcomes = blackbox.predict(synth_points)
+    # generates an outcomes batch
+    synth_outcomes = [blackbox.predict(np.asarray(X)) for X in synth_points]
 
-        stats["min_fitness"].append(scores.min())
-        stats["mean_fitness"].append(scores.mean())
-        stats["max_fitness"].append(scores.max())
-        stats["accuracy"].append(len(outcomes[outcomes == target]) / len(hof))
+    # evaluates fitness and accuracy
 
-    return stats
+    return {}
 
 
 def explain(blackbox, X: np.ndarray, y: np.ndarray) -> dict[str, list]:
@@ -44,8 +36,8 @@ def explain(blackbox, X: np.ndarray, y: np.ndarray) -> dict[str, list]:
     for point, outcome in zip(X, y):
         for target in outcomes:
             # update the point for the generation
-            genetic.update_toolbox(toolbox, point, target)
-            hof = genetic.run(toolbox, len(y))
+            genetic.update_toolbox(toolbox, point, target, blackbox)
+            hof = genetic.run(toolbox, 100)
             one_run = {
                 "point": point,
                 "class": outcome,
