@@ -1,9 +1,10 @@
 import numpy as np
+import pandas as pd
 
 from explain import genetic
 
 
-def build_stats_df(results: list[dict], blackbox) -> dict[str, list]:
+def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
     # first processing the hall of fame results
     targets = []
     hofs = []
@@ -20,12 +21,26 @@ def build_stats_df(results: list[dict], blackbox) -> dict[str, list]:
     # generates an outcomes batch
     synth_outcomes = [blackbox.predict(np.asarray(X)) for X in synth_points]
 
-    # evaluates fitness and accuracy
+    # build the final dataframe
+    data = {
+        "point": [hash(tuple(i["point"])) for i in results],
+        "class": [],
+        "target": [],
+        "min_fitness": scores.min(axis=1),
+        "mean_fitness": scores.mean(axis=1),
+        "max_fitness": scores.max(axis=1),
+        "accuracy": [],
+    }
 
-    return {}
+    for i, (r, so, t) in enumerate(zip(results, synth_outcomes, targets)):
+        data["class"].append(r["class"])
+        data["target"].append(t)
+        data["accuracy"].append(len(so[so == t]) / len(so))
+
+    return pd.DataFrame(data)
 
 
-def explain(blackbox, X: np.ndarray, y: np.ndarray) -> dict[str, list]:
+def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
     # collect all the possible outcomes
     outcomes = np.unique(y)
 

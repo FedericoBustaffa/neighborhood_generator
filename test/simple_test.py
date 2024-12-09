@@ -8,7 +8,7 @@ import explain
 if __name__ == "__main__":
     # build the dataset
     X, y = make_classification(
-        n_samples=50,
+        n_samples=100,
         n_features=2,
         n_informative=2,
         n_redundant=0,
@@ -31,4 +31,10 @@ if __name__ == "__main__":
     # these will be the data to explain
     to_explain = clf.predict(X_test)
 
-    index, results = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain))
+    df = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain))
+    print(df)
+
+    grouped = df.groupby(["point", "class"])[
+        ["min_fitness", "mean_fitness", "max_fitness", "accuracy"]
+    ].mean()
+    print(grouped)
