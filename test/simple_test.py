@@ -33,8 +33,3 @@ if __name__ == "__main__":
 
     df = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain))
     print(df)
-
-    grouped = df.groupby(["point", "class"])[
-        ["min_fitness", "mean_fitness", "max_fitness", "accuracy"]
-    ].mean()
-    print(grouped)
