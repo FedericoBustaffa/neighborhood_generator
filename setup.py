@@ -6,5 +6,5 @@ setup(
     packages=find_packages(),
     url="https://github.com/FedericoBustaffa/explain",
     author="FedericoBustaffa",
-    install_requires=["numpy", "scikit-learn"],
+    install_requires=["numpy", "scikit-learn", "pandas"],
 )
