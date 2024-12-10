@@ -11,7 +11,8 @@ import explain
 
 
 def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
-    features_index = [col for col in data.columns if col.startswith("feature_")]
+    features_index = [
+        col for col in data.columns if col.startswith("feature_")]
     X = data[features_index].to_numpy()
     y = data["outcome"].to_numpy()
 
@@ -35,9 +36,8 @@ if __name__ == "__main__":
     filepaths = [fp for fp in os.listdir("datasets")]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
 
-    expls = []
     for df in datasets:
         for bb in blackboxes:
             test_set, predictions = make_predictions(bb, df, 0.3)
             explaination = explain.explain(bb, test_set, predictions)
-            expls.append(explaination)
+            print(explaination)
