@@ -77,7 +77,7 @@ def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
     results = []
     for point, outcome in zip(X, y):
         one_point_explain = explain_one_point(
-            toolbox, len(y) * 3, point, outcome, blackbox, outcomes
+            toolbox, 500, point, outcome, blackbox, outcomes
         )
         results.extend(one_point_explain)
 
