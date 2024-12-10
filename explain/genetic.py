@@ -76,7 +76,7 @@ def run(toolbox: base.ToolBox, population_size: int):
         keep=0.1,
         cxpb=0.8,
         mutpb=0.2,
-        max_generations=100,
+        max_generations=50,
         hall_of_fame=hof,
     )
 

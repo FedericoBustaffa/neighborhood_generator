@@ -26,6 +26,7 @@ def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
         "point": [hash(tuple(i["point"])) for i in results],
         "class": [],
         "target": [],
+        "blackbox": [],
         "min_fitness": scores.min(axis=1),
         "mean_fitness": scores.mean(axis=1),
         "max_fitness": scores.max(axis=1),
@@ -35,9 +36,27 @@ def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
     for i, (r, so, t) in enumerate(zip(results, synth_outcomes, targets)):
         data["class"].append(r["class"])
         data["target"].append(t)
+        data["blackbox"].append(str(blackbox).removesuffix("()"))
         data["accuracy"].append(len(so[so == t]) / len(so))
 
     return pd.DataFrame(data)
+
+
+def explain_one_point(toolbox, point, outcome, blackbox, outcomes):
+    results = []
+    for target in outcomes:
+        # update the point for the generation
+        genetic.update_toolbox(toolbox, point, target, blackbox)
+        hof = genetic.run(toolbox, 100)
+        one_run = {
+            "point": point,
+            "class": outcome,
+            "target": target,
+            "hall_of_fame": hof,
+        }
+        results.append(one_run)
+
+    return results
 
 
 def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
@@ -49,16 +68,9 @@ def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
 
     results = []
     for point, outcome in zip(X, y):
-        for target in outcomes:
-            # update the point for the generation
-            genetic.update_toolbox(toolbox, point, target, blackbox)
-            hof = genetic.run(toolbox, 100)
-            one_run = {
-                "point": point,
-                "class": outcome,
-                "target": target,
-                "hall_of_fame": hof,
-            }
-            results.append(one_run)
+        one_point_explain = explain_one_point(
+            toolbox, point, outcome, blackbox, outcomes
+        )
+        results.extend(one_point_explain)
 
     return build_stats_df(results, blackbox)
