@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from explain import genetic
+from ppga import base
 
 
 def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
@@ -13,7 +14,7 @@ def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
         hofs.append(i["hall_of_fame"])
 
     # extract fitness scores
-    scores = np.array([[i.fitness for i in h] for h in hofs])
+    scores = [np.array([i.fitness for i in h]) for h in hofs]
 
     # extract the sythetic points
     synth_points = [[i.chromosome for i in h] for h in hofs]
@@ -27,9 +28,9 @@ def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
         "class": [],
         "target": [],
         "blackbox": [],
-        "min_fitness": scores.min(axis=1),
-        "mean_fitness": scores.mean(axis=1),
-        "max_fitness": scores.max(axis=1),
+        "min_fitness": [np.min(s[~np.isinf(s)]) for s in scores],
+        "mean_fitness": [np.mean(s[~np.isinf(s)]) for s in scores],
+        "max_fitness": [np.max(s[~np.isinf(s)]) for s in scores],
         "accuracy": [],
     }
 
@@ -42,12 +43,19 @@ def build_stats_df(results: list[dict], blackbox) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def explain_one_point(toolbox, point, outcome, blackbox, outcomes):
+def explain_one_point(
+    toolbox: base.ToolBox,
+    population_size: int,
+    point: np.ndarray,
+    outcome: int,
+    blackbox,
+    outcomes: np.ndarray,
+):
     results = []
     for target in outcomes:
         # update the point for the generation
         genetic.update_toolbox(toolbox, point, target, blackbox)
-        hof = genetic.run(toolbox, 100)
+        hof = genetic.run(toolbox, population_size)
         one_run = {
             "point": point,
             "class": outcome,
@@ -69,7 +77,7 @@ def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
     results = []
     for point, outcome in zip(X, y):
         one_point_explain = explain_one_point(
-            toolbox, point, outcome, blackbox, outcomes
+            toolbox, len(y) * 3, point, outcome, blackbox, outcomes
         )
         results.extend(one_point_explain)
 
