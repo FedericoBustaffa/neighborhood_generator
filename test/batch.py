@@ -11,14 +11,13 @@ import explain
 
 
 def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
-    features_index = [
-        col for col in data.columns if col.startswith("feature_")]
+    features_index = [col for col in data.columns if col.startswith("feature_")]
     X = data[features_index].to_numpy()
     y = data["outcome"].to_numpy()
 
     # split train and test set
     X_train, X_test, y_train, _ = train_test_split(
-        X, y, test_size=0.2, train_size=0.8, random_state=0
+        X, y, test_size=test_size, random_state=0
     )
 
     # train the model
