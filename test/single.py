@@ -12,7 +12,7 @@ if __name__ == "__main__":
     y = df["outcome"].to_numpy()
 
     # split train and test set
-    X_train, X_test, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=0)
+    X_train, X_test, y_train, _ = train_test_split(X, y, test_size=0.1, random_state=0)
 
     # train the model
     clf = MLPClassifier()
@@ -21,5 +21,5 @@ if __name__ == "__main__":
     # these will be the data to explain
     to_explain = clf.predict(X_test)
 
-    df = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain))
+    df = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain), 500)
     print(df)

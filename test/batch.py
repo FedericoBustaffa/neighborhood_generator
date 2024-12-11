@@ -38,5 +38,5 @@ if __name__ == "__main__":
     for df in datasets:
         for bb in blackboxes:
             test_set, predictions = make_predictions(bb, df, 0.3)
-            explaination = explain.explain(bb, test_set, predictions)
+            explaination = explain.explain(bb, test_set, predictions, 500)
             print(explaination)

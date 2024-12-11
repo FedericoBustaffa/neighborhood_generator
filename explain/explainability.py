@@ -67,7 +67,9 @@ def explain_one_point(
     return results
 
 
-def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
+def explain(
+    blackbox, X: np.ndarray, y: np.ndarray, population_size: int
+) -> pd.DataFrame:
     # collect all the possible outcomes
     outcomes = np.unique(y)
 
@@ -77,7 +79,7 @@ def explain(blackbox, X: np.ndarray, y: np.ndarray) -> pd.DataFrame:
     results = []
     for point, outcome in zip(X, y):
         one_point_explain = explain_one_point(
-            toolbox, 500, point, outcome, blackbox, outcomes
+            toolbox, population_size, point, outcome, blackbox, outcomes
         )
         results.extend(one_point_explain)
 
