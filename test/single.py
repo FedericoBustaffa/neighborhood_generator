@@ -20,9 +20,7 @@ if __name__ == "__main__":
     )
 
     # split train and test set
-    X_train, X_test, y_train, _ = train_test_split(
-        X, y, test_size=0.2, train_size=0.8, random_state=0
-    )
+    X_train, X_test, y_train, _ = train_test_split(X, y, test_size=0.3, random_state=0)
 
     # train the model
     clf = MLPClassifier()
