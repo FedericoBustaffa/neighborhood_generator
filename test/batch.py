@@ -13,7 +13,8 @@ from ppga import log
 
 
 def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
-    features_index = [col for col in data.columns if col.startswith("feature_")]
+    features_index = [
+        col for col in data.columns if col.startswith("feature_")]
     X = data[features_index].to_numpy()
     y = data["outcome"].to_numpy()
 
@@ -34,7 +35,8 @@ def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
 if __name__ == "__main__":
     # set the debug log level of the core logger
     parser = argparse.ArgumentParser()
-    parser.add_argument("log", type=str, help="set the log level of the core logger")
+    parser.add_argument(
+        "log", type=str, help="set the log level of the core logger")
     args = parser.parse_args()
     log.setLevel(args.log.upper())
 
