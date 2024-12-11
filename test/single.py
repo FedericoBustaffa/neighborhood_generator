@@ -1,11 +1,20 @@
+import argparse
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
 import explain
+from ppga import log
 
 if __name__ == "__main__":
+    # set the debug log level of the core logger
+    parser = argparse.ArgumentParser()
+    parser.add_argument("log", type=str, help="set the log level of the core logger")
+    args = parser.parse_args()
+    log.setLevel(args.log.upper())
+
     # build the dataset
     df = pd.read_csv("datasets/classification_100_2_2_1_0.csv")
     X = df[["feature_1", "feature_2"]].to_numpy()

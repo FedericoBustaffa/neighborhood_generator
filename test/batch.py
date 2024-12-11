@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import numpy as np
@@ -8,6 +9,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 
 import explain
+from ppga import log
 
 
 def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
@@ -30,11 +32,20 @@ def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
 
 
 if __name__ == "__main__":
+    # set the debug log level of the core logger
+    parser = argparse.ArgumentParser()
+    parser.add_argument("log", type=str, help="set the log level of the core logger")
+    args = parser.parse_args()
+    log.setLevel(args.log.upper())
+
+    # blackboxes for testing
     blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]
 
+    # get the datasets
     filepaths = [fp for fp in os.listdir("datasets")]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
 
+    # for every dataset run the blackbox and make explainations
     for df in datasets:
         for bb in blackboxes:
             test_set, predictions = make_predictions(bb, df, 0.3)
