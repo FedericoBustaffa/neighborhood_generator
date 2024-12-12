@@ -42,6 +42,8 @@ if __name__ == "__main__":
 
     # set the core and user logger level
     log.setLevel(args.log.upper())
+    logger = log.getUserLogger()
+    logger.setLevel(args.log.upper())
 
     # blackboxes for testing
     blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]
@@ -49,6 +51,7 @@ if __name__ == "__main__":
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets")]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
+    logger.info(f"preparing to explain {len(datasets)} datasets")
 
     # for every dataset run the blackbox and make explainations
     df = {
@@ -65,7 +68,12 @@ if __name__ == "__main__":
 
     for i, df in enumerate(datasets):
         for bb in blackboxes:
+            logger.info(f"dataset {i+1}/{len(datasets)}")
+            logger.info(f"model: {str(bb).removesuffix('()')}")
+
             test_set, predictions = make_predictions(bb, df, 0.3)
+            logger.info(f"predictions to explain: {len(predictions)}")
+
             explaination = explain.explain(bb, test_set, predictions, 500)
             df["dataset_id"].extend(i for _ in range(len(explaination["point"])))
             for k in df:
