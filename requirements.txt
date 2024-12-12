@@ -2,4 +2,8 @@ pandas
 numpy
 matplotlib
 scikit-learn
+ipykernel
+notebook
+jupyterlab
+jupyterlab-fonts
 ./ppga/
