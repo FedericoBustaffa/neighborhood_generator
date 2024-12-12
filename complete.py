@@ -71,4 +71,7 @@ if __name__ == "__main__":
             for k in df:
                 df[k].extend(explaination[k])
 
-    print(pd.DataFrame(df))
+    df = pd.DataFrame(df)
+    print(df)
+
+    df.to_csv("datasets/first_simulation.csv", header=True, index=False)
