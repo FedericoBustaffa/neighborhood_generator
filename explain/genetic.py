@@ -66,6 +66,8 @@ def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackb
         alpha=0.0,
     )
 
+    return toolbox
+
 
 def run(toolbox: base.ToolBox, population_size: int):
     # run the genetic algorithm on one point with a specific target class
@@ -78,7 +80,7 @@ def run(toolbox: base.ToolBox, population_size: int):
         mutpb=0.2,
         max_generations=100,
         hall_of_fame=hof,
-        workers_num=32,
+        workers_num=4,
     )
 
     return hof

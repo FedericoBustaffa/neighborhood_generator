@@ -54,7 +54,7 @@ def explain_one_point(
     results = []
     for target in outcomes:
         # update the point for the generation
-        genetic.update_toolbox(toolbox, point, target, blackbox)
+        toolbox = genetic.update_toolbox(toolbox, point, target, blackbox)
         hof = genetic.run(toolbox, population_size)
         one_run = {
             "point": point,
