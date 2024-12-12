@@ -35,7 +35,9 @@ if __name__ == "__main__":
     # set the debug log level of the core logger
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--log", help="set the log level of the core logger")
+    parser.add_argument(
+        "--log", default="info", help="set the log level of the core logger"
+    )
     args = parser.parse_args()
 
     # set the core and user logger level
