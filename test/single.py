@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     # df = explain.explain(clf, np.asarray(X_test), np.asarray(to_explain), 500)
     expl = explain.explain_one_point(
-        toolbox, 100, X_test[0], to_explain[0], clf, outcomes
+        toolbox, 100, X_test[0], to_explain[0], clf, outcomes, X_test
     )
     print(explain.build_stats_df(expl, clf))
     synth_points = np.asarray([ind.chromosome for ind in expl[0]["hall_of_fame"]])

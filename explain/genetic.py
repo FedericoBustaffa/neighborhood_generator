@@ -1,7 +1,7 @@
 import warnings
 
 import numpy as np
-from numpy import linalg
+from numpy import linalg, random
 
 from ppga import algorithms, base, tools
 
@@ -11,6 +11,10 @@ warnings.filterwarnings("ignore")
 # generation by copy
 def generate_copy(point: np.ndarray) -> np.ndarray:
     return point.copy()
+
+
+def generate_normal(mu, sigma):
+    return random.normal(mu, sigma, size=mu.shape)
 
 
 # evaluation with target
@@ -53,9 +57,10 @@ def toolbox(X: np.ndarray) -> base.ToolBox:
     return toolbox
 
 
-def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox):
+def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox, X):
     # update the toolbox with new generation and evaluation
-    toolbox.set_generation(generate_copy, point=point)
+    sigma = X.std(axis=0)
+    toolbox.set_generation(generate_normal, mu=point, sigma=sigma * 0.5)
 
     toolbox.set_evaluation(
         evaluate,
@@ -80,6 +85,7 @@ def run(toolbox: base.ToolBox, population_size: int):
         mutpb=0.2,
         max_generations=100,
         hall_of_fame=hof,
+        workers_num=32,
     )
 
     return hof
