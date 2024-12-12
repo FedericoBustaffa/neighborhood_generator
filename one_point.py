@@ -1,11 +1,13 @@
 import argparse
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-from explain import explain, genetic
+import explain
+from explain import genetic
 from ppga import log
 
 if __name__ == "__main__":
@@ -40,5 +42,19 @@ if __name__ == "__main__":
     to_explain = np.asarray(clf.predict(X_test))
     toolbox = genetic.toolbox(np.asarray(X_test))
 
-    explaination = explain(clf, X_test, to_explain, 500)
-    print(explaination)
+    expl1, hof1 = explain.explain_one_point(
+        toolbox, 100, X_test[4], to_explain[4], clf, 0
+    )
+    expl2, hof2 = explain.explain_one_point(
+        toolbox, 100, X_test[4], to_explain[4], clf, 1
+    )
+
+    print(expl1)
+    print(expl2)
+
+    synth_points = np.asarray([ind.chromosome for ind in hof2])
+    plt.figure(figsize=(16, 9))
+    plt.scatter(X_test.T[0], X_test.T[1], c=to_explain, ec="w", cmap="bwr")
+    plt.scatter(synth_points.T[0], synth_points.T[1], c="y", ec="w")
+    plt.scatter(X_test.T[0][4], X_test.T[1][4], c="b", ec="w", marker="X")
+    plt.show()

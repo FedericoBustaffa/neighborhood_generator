@@ -13,8 +13,7 @@ from ppga import log
 
 
 def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
-    features_index = [
-        col for col in data.columns if col.startswith("feature_")]
+    features_index = [col for col in data.columns if col.startswith("feature_")]
     X = data[features_index].to_numpy()
     y = data["outcome"].to_numpy()
 
@@ -35,9 +34,11 @@ def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
 if __name__ == "__main__":
     # set the debug log level of the core logger
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "log", type=str, help="set the log level of the core logger")
+
+    parser.add_argument("--log", help="set the log level of the core logger")
     args = parser.parse_args()
+
+    # set the core and user logger level
     log.setLevel(args.log.upper())
 
     # blackboxes for testing
@@ -48,8 +49,24 @@ if __name__ == "__main__":
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
 
     # for every dataset run the blackbox and make explainations
-    for df in datasets:
+    df = {
+        "dataset_id": [],
+        "point": [],
+        "class": [],
+        "target": [],
+        "model": [],
+        "min_fitness": [],
+        "mean_fitness": [],
+        "max_fitness": [],
+        "accuracy": [],
+    }
+
+    for i, df in enumerate(datasets):
         for bb in blackboxes:
             test_set, predictions = make_predictions(bb, df, 0.3)
             explaination = explain.explain(bb, test_set, predictions, 500)
-            print(explaination)
+            df["dataset_id"].extend(i for _ in range(len(explaination["point"])))
+            for k in df:
+                df[k].extend(explaination[k])
+
+    print(pd.DataFrame(df))
