@@ -1,3 +1,3 @@
-from .explainability import build_stats_df, explain, explain_one_point
+from .explainability import explain, explain_one_point
 
-__all__ = ["build_stats_df", "explain", "explain_one_point"]
+__all__ = ["explain", "explain_one_point"]
