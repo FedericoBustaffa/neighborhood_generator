@@ -50,12 +50,11 @@ def explain_one_point(
     outcome: int,
     blackbox,
     outcomes: np.ndarray,
-    X,
 ):
     results = []
     for target in outcomes:
         # update the point for the generation
-        toolbox = genetic.update_toolbox(toolbox, point, target, blackbox, X)
+        toolbox = genetic.update_toolbox(toolbox, point, target, blackbox)
         hof = genetic.run(toolbox, population_size)
         one_run = {
             "point": point,
@@ -80,7 +79,7 @@ def explain(
     results = []
     for point, outcome in zip(X, y):
         one_point_explain = explain_one_point(
-            toolbox, population_size, point, outcome, blackbox, outcomes, X
+            toolbox, population_size, point, outcome, blackbox, outcomes
         )
         results.extend(one_point_explain)
 

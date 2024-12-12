@@ -58,11 +58,9 @@ def toolbox(X: np.ndarray) -> base.ToolBox:
     return toolbox
 
 
-def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox, X):
+def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox):
     # update the toolbox with new generation and evaluation
-    sigma = X.std(axis=0)
     toolbox.set_generation(generate_copy, point=point)
-    # toolbox.set_generation(generate_normal, mu=point, sigma=sigma * 0.5)
 
     toolbox.set_evaluation(
         evaluate,
