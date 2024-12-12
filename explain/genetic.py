@@ -80,7 +80,6 @@ def run(toolbox: base.ToolBox, population_size: int):
         mutpb=0.2,
         max_generations=100,
         hall_of_fame=hof,
-        workers_num=4,
     )
 
     return hof
