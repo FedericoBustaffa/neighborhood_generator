@@ -46,7 +46,7 @@ if __name__ == "__main__":
     logger.setLevel(args.log.upper())
 
     # blackboxes for testing
-    blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]
+    blackboxes = [SVC(), MLPClassifier(), RandomForestClassifier()]
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets")]
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
     # for every dataset run the blackbox and make explainations
-    df = {
+    results = {
         "dataset_id": [],
         "point": [],
         "class": [],
@@ -75,11 +75,11 @@ if __name__ == "__main__":
             logger.info(f"predictions to explain: {len(predictions)}")
 
             explaination = explain.explain(bb, test_set, predictions, 500)
-            df["dataset_id"].extend(i for _ in range(len(explaination["point"])))
-            for k in df:
-                df[k].extend(explaination[k])
+            results["dataset_id"].extend([i for _ in range(len(explaination["point"]))])
+            for k in explaination:
+                results[k].extend(explaination[k])
 
-    df = pd.DataFrame(df)
-    print(df)
+    results = pd.DataFrame(results)
+    print(results)
 
-    df.to_csv("datasets/first_simulation.csv", header=True, index=False)
+    results.to_csv("datasets/first_simulation.csv", header=True, index=False)
