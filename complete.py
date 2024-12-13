@@ -38,6 +38,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--log", default="info", help="set the log level of the core logger"
     )
+    parser.add_argument(
+        "--output",
+        default="output",
+        help="specify the name of the output file without extension",
+    )
     args = parser.parse_args()
 
     # set the core and user logger level
@@ -82,4 +87,4 @@ if __name__ == "__main__":
     results = pd.DataFrame(results)
     print(results)
 
-    results.to_csv("datasets/first_simulation.csv", header=True, index=False)
+    results.to_csv(f"datasets/{args.output}.csv", header=True, index=False)
