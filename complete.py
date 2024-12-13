@@ -63,49 +63,66 @@ if __name__ == "__main__":
     # for every dataset run the blackbox and make explainations
     results = {
         "dataset_id": [],  # dataset features
+        "simulation_id": [],
         "samples": [],
         "features": [],
         "classes": [],
         "clusters": [],
-        "point": [],  # single genetic run features
+        "population_size": [],  # single genetic run features
+        "point": [],
         "class": [],
         "target": [],
         "model": [],
-        "min_fitness": [],
+        "min_fitness": [],  # genetic algorithm output
         "mean_fitness": [],
         "max_fitness": [],
         "accuracy": [],
     }
 
+    population_sizes = [500, 1000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
-            logger.info(f"dataset {i+1}/{len(datasets)}")
-            logger.info(f"model: {str(bb).removesuffix('()')}")
+            for ps in population_sizes:
+                for j in range(10):
+                    logger.info(f"dataset {i+1}/{len(datasets)}")
+                    logger.info(f"model: {str(bb).removesuffix('()')}")
+                    logger.info(f"population_size: {ps}")
 
-            # change test size to 0.3 for real test
-            # test_set, predictions = make_predictions(bb, df, 0.3)
-            test_set, predictions = make_predictions(bb, df, 0.05)
-            logger.info(f"predictions to explain: {len(predictions)}")
+                    # change test size to 0.3 for real test
+                    # test_set, predictions = make_predictions(bb, df, 0.3)
+                    test_set, predictions = make_predictions(bb, df, 0.05)
+                    logger.info(f"predictions to explain: {len(predictions)}")
 
-            explaination = explain.explain(bb, test_set, predictions, 500)
-            dataset_features = fp.removesuffix(".csv").split("_")
+                    explaination = explain.explain(bb, test_set, predictions, 500)
+                    dataset_features = fp.removesuffix(".csv").split("_")
 
-            results["dataset_id"].extend([i for _ in range(len(explaination["point"]))])
-            results["samples"].extend(
-                [len(predictions) for _ in range(len(explaination["point"]))]
-            )
-            results["features"].extend(
-                [dataset_features[2] for _ in range(len(explaination["point"]))]
-            )
-            results["classes"].extend(
-                [dataset_features[3] for _ in range(len(explaination["point"]))]
-            )
-            results["clusters"].extend(
-                [dataset_features[4] for _ in range(len(explaination["point"]))]
-            )
+                    results["dataset_id"].extend(
+                        [i for _ in range(len(explaination["point"]))]
+                    )
+                    results["simulation_id"].extend(
+                        [j for _ in range(len(explaination["point"]))]
+                    )
+                    results["samples"].extend(
+                        [len(predictions) for _ in range(len(explaination["point"]))]
+                    )
+                    results["features"].extend(
+                        [dataset_features[2] for _ in range(len(explaination["point"]))]
+                    )
+                    results["classes"].extend(
+                        [dataset_features[3] for _ in range(len(explaination["point"]))]
+                    )
+                    results["clusters"].extend(
+                        [dataset_features[4] for _ in range(len(explaination["point"]))]
+                    )
+                    results["population_size"].extend(
+                        [
+                            dataset_features[500]
+                            for _ in range(len(explaination["point"]))
+                        ]
+                    )
 
-            for k in explaination:
-                results[k].extend(explaination[k])
+                    for k in explaination:
+                        results[k].extend(explaination[k])
 
     results = pd.DataFrame(results)
     print(results)
