@@ -27,6 +27,7 @@ def explain_one_point(
         "model": str(blackbox).removesuffix("()"),
         "min_fitness": scores.min(),
         "mean_fitness": scores.mean(),
+        "fitness_std": scores.std(),
         "max_fitness": scores.max(),
         "accuracy": len(synth_outcomes[synth_outcomes == target]) / len(synth_outcomes),
     }, hof  # REMOVE
@@ -49,6 +50,7 @@ def explain(
         "model": [],
         "min_fitness": [],
         "mean_fitness": [],
+        "fitness_std": [],
         "max_fitness": [],
         "accuracy": [],
     }
