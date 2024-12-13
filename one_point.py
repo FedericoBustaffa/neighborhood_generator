@@ -49,8 +49,10 @@ if __name__ == "__main__":
         toolbox, 100, X_test[4], to_explain[4], clf, 1
     )
 
-    print(expl1)
-    print(expl2)
+    for k in expl1:
+        expl1[k] = [expl1[k], expl2[k]]
+
+    print(pd.DataFrame(expl1))
 
     synth_points = np.asarray([ind.chromosome for ind in hof2])
     plt.figure(figsize=(16, 9))
