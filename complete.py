@@ -54,14 +54,19 @@ if __name__ == "__main__":
     blackboxes = [SVC(), MLPClassifier(), RandomForestClassifier()]
 
     # get the datasets
-    filepaths = [fp for fp in os.listdir("datasets")]
+    # filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
+    filepaths = ["classification_100_2_2_1_0.csv", "classification_100_2_2_2_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
     # for every dataset run the blackbox and make explainations
     results = {
-        "dataset_id": [],
-        "point": [],
+        "dataset_id": [],  # dataset features
+        "samples": [],
+        "features": [],
+        "classes": [],
+        "clusters": [],
+        "point": [],  # single genetic run features
         "class": [],
         "target": [],
         "model": [],
@@ -71,16 +76,32 @@ if __name__ == "__main__":
         "accuracy": [],
     }
 
-    for i, df in enumerate(datasets):
+    for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             logger.info(f"dataset {i+1}/{len(datasets)}")
             logger.info(f"model: {str(bb).removesuffix('()')}")
 
-            test_set, predictions = make_predictions(bb, df, 0.3)
+            # change test size to 0.3 for real test
+            test_set, predictions = make_predictions(bb, df, 0.1)
             logger.info(f"predictions to explain: {len(predictions)}")
 
             explaination = explain.explain(bb, test_set, predictions, 500)
+            dataset_features = fp.removesuffix(".csv").split("_")
+
             results["dataset_id"].extend([i for _ in range(len(explaination["point"]))])
+            results["samples"].extend(
+                [fp[1] for _ in range(len(explaination["point"]))]
+            )
+            results["features"].extend(
+                [fp[2] for _ in range(len(explaination["point"]))]
+            )
+            results["classes"].extend(
+                [fp[3] for _ in range(len(explaination["point"]))]
+            )
+            results["clusters"].extend(
+                [fp[4] for _ in range(len(explaination["point"]))]
+            )
+
             for k in explaination:
                 results[k].extend(explaination[k])
 
