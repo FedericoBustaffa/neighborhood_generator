@@ -75,6 +75,7 @@ if __name__ == "__main__":
         "model": [],
         "min_fitness": [],  # genetic algorithm output
         "mean_fitness": [],
+        "fitness_std": [],
         "max_fitness": [],
         "accuracy": [],
     }
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(10):
+                for j in range(2):
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
@@ -93,7 +94,7 @@ if __name__ == "__main__":
                     test_set, predictions = make_predictions(bb, df, 0.05)
                     logger.info(f"predictions to explain: {len(predictions)}")
 
-                    explaination = explain.explain(bb, test_set, predictions, 500)
+                    explaination = explain.explain(bb, test_set, predictions, ps)
                     dataset_features = fp.removesuffix(".csv").split("_")
 
                     results["dataset_id"].extend(
@@ -115,10 +116,7 @@ if __name__ == "__main__":
                         [dataset_features[4] for _ in range(len(explaination["point"]))]
                     )
                     results["population_size"].extend(
-                        [
-                            dataset_features[500]
-                            for _ in range(len(explaination["point"]))
-                        ]
+                        [ps for _ in range(len(explaination["point"]))]
                     )
 
                     for k in explaination:
