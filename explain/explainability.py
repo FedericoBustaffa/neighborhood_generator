@@ -53,12 +53,15 @@ def explain(
         "accuracy": [],
     }
 
-    for point, outcome in zip(X, y):
+    for i, (point, outcome) in enumerate(zip(X, y)):
         for target in outcomes:
             stats, _ = explain_one_point(
                 toolbox, population_size, point, outcome, blackbox, target
             )
             for k in stats:
-                df[k].append(stats[k])
+                if k == "point":
+                    df[k].append(i)
+                else:
+                    df[k].append(stats[k])
 
     return df

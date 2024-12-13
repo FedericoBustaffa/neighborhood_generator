@@ -51,7 +51,8 @@ if __name__ == "__main__":
     logger.setLevel(args.log.upper())
 
     # blackboxes for testing
-    blackboxes = [SVC(), MLPClassifier(), RandomForestClassifier()]
+    blackboxes = [SVC(), MLPClassifier()]  # for fast tests
+    # blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()] # for complete simulation
 
     # get the datasets
     # filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
@@ -82,7 +83,8 @@ if __name__ == "__main__":
             logger.info(f"model: {str(bb).removesuffix('()')}")
 
             # change test size to 0.3 for real test
-            test_set, predictions = make_predictions(bb, df, 0.1)
+            # test_set, predictions = make_predictions(bb, df, 0.3)
+            test_set, predictions = make_predictions(bb, df, 0.05)
             logger.info(f"predictions to explain: {len(predictions)}")
 
             explaination = explain.explain(bb, test_set, predictions, 500)
@@ -90,16 +92,16 @@ if __name__ == "__main__":
 
             results["dataset_id"].extend([i for _ in range(len(explaination["point"]))])
             results["samples"].extend(
-                [fp[1] for _ in range(len(explaination["point"]))]
+                [len(predictions) for _ in range(len(explaination["point"]))]
             )
             results["features"].extend(
-                [fp[2] for _ in range(len(explaination["point"]))]
+                [dataset_features[2] for _ in range(len(explaination["point"]))]
             )
             results["classes"].extend(
-                [fp[3] for _ in range(len(explaination["point"]))]
+                [dataset_features[3] for _ in range(len(explaination["point"]))]
             )
             results["clusters"].extend(
-                [fp[4] for _ in range(len(explaination["point"]))]
+                [dataset_features[4] for _ in range(len(explaination["point"]))]
             )
 
             for k in explaination:
