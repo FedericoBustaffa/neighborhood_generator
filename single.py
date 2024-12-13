@@ -41,4 +41,4 @@ if __name__ == "__main__":
     toolbox = genetic.toolbox(np.asarray(X_test))
 
     explaination = explain(clf, X_test, to_explain, 500)
-    print(explaination)
+    print(pd.DataFrame(explaination))
