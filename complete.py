@@ -80,11 +80,11 @@ if __name__ == "__main__":
         "accuracy": [],
     }
 
-    population_sizes = [500, 1000]
+    population_sizes = [1000, 2000, 4000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(2):
+                for j in range(2):  # change to 10 for complete simulation
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
