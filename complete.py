@@ -84,14 +84,14 @@ if __name__ == "__main__":
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(2):  # change to 10 for complete simulation
+                for j in range(5):  # change to 10 for complete simulation
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
 
                     # change test size to 0.3 for real test
                     # test_set, predictions = make_predictions(bb, df, 0.3)
-                    test_set, predictions = make_predictions(bb, df, 0.05)
+                    test_set, predictions = make_predictions(bb, df, 0.1)
                     logger.info(f"predictions to explain: {len(predictions)}")
 
                     explaination = explain.explain(bb, test_set, predictions, ps)
