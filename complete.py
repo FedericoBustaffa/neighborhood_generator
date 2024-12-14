@@ -52,11 +52,11 @@ if __name__ == "__main__":
 
     # blackboxes for testing
     blackboxes = [SVC(), MLPClassifier()]  # for fast tests
-    # blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()] # for complete simulation
+    # blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]  # for complete simulation
 
     # get the datasets
-    # filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
-    filepaths = ["classification_100_2_2_1_0.csv", "classification_100_2_2_2_0.csv"]
+    filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
+    # filepaths = ["classification_100_2_2_1_0.csv", "classification_100_2_2_2_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
@@ -84,13 +84,12 @@ if __name__ == "__main__":
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(5):  # change to 10 for complete simulation
+                for j in range(10):  # change to 10 for complete simulation
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
 
                     # change test size to 0.3 for real test
-                    # test_set, predictions = make_predictions(bb, df, 0.3)
                     test_set, predictions = make_predictions(bb, df, 0.1)
                     logger.info(f"predictions to explain: {len(predictions)}")
 
