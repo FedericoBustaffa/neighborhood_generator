@@ -51,8 +51,12 @@ if __name__ == "__main__":
     logger.setLevel(args.log.upper())
 
     # blackboxes for testing
-    blackboxes = [SVC(), MLPClassifier()]  # for fast tests
-    # blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]  # for complete simulation
+    # blackboxes = [SVC(), MLPClassifier()]  # for fast tests
+    blackboxes = [
+        RandomForestClassifier(),
+        SVC(),
+        MLPClassifier(),
+    ]  # for complete simulation
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
@@ -62,8 +66,8 @@ if __name__ == "__main__":
 
     # for every dataset run the blackbox and make explainations
     results = {
-        "dataset_id": [],  # dataset features
-        "simulation_id": [],
+        "simulation_ID": [],
+        "dataset_ID": [],  # dataset features
         "samples": [],
         "features": [],
         "classes": [],
@@ -80,27 +84,28 @@ if __name__ == "__main__":
         "accuracy": [],
     }
 
+    # population_sizes = [500]
     population_sizes = [1000, 2000, 4000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(10):  # change to 10 for complete simulation
+                for j in range(5):  # change to 10 for complete simulation
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
 
                     # change test size to 0.3 for real test
-                    test_set, predictions = make_predictions(bb, df, 0.1)
+                    test_set, predictions = make_predictions(bb, df, 0.2)
                     logger.info(f"predictions to explain: {len(predictions)}")
 
                     explaination = explain.explain(bb, test_set, predictions, ps)
                     dataset_features = fp.removesuffix(".csv").split("_")
 
-                    results["dataset_id"].extend(
-                        [i for _ in range(len(explaination["point"]))]
-                    )
-                    results["simulation_id"].extend(
+                    results["simulation_ID"].extend(
                         [j for _ in range(len(explaination["point"]))]
+                    )
+                    results["dataset_ID"].extend(
+                        [i for _ in range(len(explaination["point"]))]
                     )
                     results["samples"].extend(
                         [len(predictions) for _ in range(len(explaination["point"]))]
