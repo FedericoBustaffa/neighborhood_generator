@@ -77,7 +77,7 @@ def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackb
 def run(toolbox: base.ToolBox, population_size: int):
     # run the genetic algorithm on one point with a specific target class
     hof = base.HallOfFame(population_size)
-    population, stats = algorithms.pelitist(
+    population, stats = algorithms.simple(
         toolbox=toolbox,
         population_size=population_size,
         keep=0.1,
