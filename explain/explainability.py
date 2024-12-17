@@ -40,7 +40,7 @@ def explain(
     outcomes = np.unique(y)
 
     # create a toolbox with fixed params
-    toolbox = genetic.toolbox(X)
+    toolbox = genetic.create_toolbox(X)
 
     # dataset of results
     df = {

@@ -45,7 +45,7 @@ def evaluate(
     return (distance / right_target,)
 
 
-def toolbox(X: np.ndarray) -> base.ToolBox:
+def create_toolbox(X: np.ndarray) -> base.ToolBox:
     mu = X.mean(axis=0)
     sigma = X.std(axis=0)
 
