@@ -68,7 +68,8 @@ if __name__ == "__main__":
     )
 
     synth_points = [ind for ind in hof]
-    plt.figure(figsize=(16, 9))
+    plt.figure(figsize=(16, 10))
+    plt.title("DEAP")
     plt.scatter(
         np.asarray(X_test).T[0],
         np.asarray(X_test).T[1],
@@ -80,4 +81,6 @@ if __name__ == "__main__":
         np.asarray(synth_points).T[0], np.asarray(synth_points).T[1], c="y", ec="w"
     )
     plt.scatter(point[0], point[1], marker="X", c="r", ec="w")
+
+    plt.gcf().set_dpi(150)
     plt.show()
