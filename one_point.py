@@ -31,7 +31,7 @@ if __name__ == "__main__":
     y = df["outcome"].to_numpy()
 
     # split train and test set
-    X_train, X_test, y_train, _ = train_test_split(X, y, test_size=0.1, random_state=0)
+    X_train, X_test, y_train, _ = train_test_split(X, y, test_size=0.3, random_state=0)
     X_test = np.asarray(X_test)
 
     # train the model
@@ -40,13 +40,13 @@ if __name__ == "__main__":
 
     # these will be the data to explain
     to_explain = np.asarray(clf.predict(X_test))
-    toolbox = genetic.toolbox(np.asarray(X_test))
+    toolbox = genetic.create_toolbox(np.asarray(X_test))
 
     expl1, hof1 = explain.explain_one_point(
-        toolbox, 100, X_test[4], to_explain[4], clf, 0
+        toolbox, 100, X_test[0], to_explain[0], clf, 0
     )
     expl2, hof2 = explain.explain_one_point(
-        toolbox, 100, X_test[4], to_explain[4], clf, 1
+        toolbox, 100, X_test[0], to_explain[0], clf, 1
     )
 
     for k in expl1:
@@ -58,5 +58,5 @@ if __name__ == "__main__":
     plt.figure(figsize=(16, 9))
     plt.scatter(X_test.T[0], X_test.T[1], c=to_explain, ec="w", cmap="bwr")
     plt.scatter(synth_points.T[0], synth_points.T[1], c="y", ec="w")
-    plt.scatter(X_test.T[0][4], X_test.T[1][4], c="b", ec="w", marker="X")
+    plt.scatter(X_test.T[0][0], X_test.T[1][0], c="r", ec="w", marker="X")
     plt.show()

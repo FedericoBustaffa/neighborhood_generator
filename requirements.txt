@@ -6,4 +6,6 @@ ipykernel
 notebook
 jupyterlab
 jupyterlab-fonts
+deap
+scoop
 ./ppga/
