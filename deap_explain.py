@@ -60,12 +60,8 @@ if __name__ == "__main__":
     )
 
     pop = getattr(toolbox, "population")(n=100)
-    for ind in pop:
-        print(ind)
     hof = tools.HallOfFame(100, similar=np.array_equal)
-    population, logbook = algorithms.eaSimple(
-        pop, toolbox, 0.7, 0.3, 100, halloffame=hof
-    )
+    population, logbook = algorithms.eaSimple(pop, toolbox, 0.7, 0.3, 5, halloffame=hof)
 
     synth_points = [ind for ind in hof]
     plt.figure(figsize=(16, 10))
