@@ -51,16 +51,10 @@ if __name__ == "__main__":
     logger.setLevel(args.log.upper())
 
     # blackboxes for testing
-    blackboxes = [SVC(), MLPClassifier()]  # for fast tests
-    blackboxes = [
-        RandomForestClassifier(),
-        SVC(),
-        MLPClassifier(),
-    ]  # for complete simulation
+    blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
-    # filepaths = ["classification_100_2_2_1_0.csv", "classification_100_2_2_2_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
@@ -88,7 +82,7 @@ if __name__ == "__main__":
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for bb in blackboxes:
             for ps in population_sizes:
-                for j in range(10):  # change at least to 5 for a better simulation
+                for j in range(1):  # change at least to 5 for a better simulation
                     logger.info(f"dataset {i+1}/{len(datasets)}")
                     logger.info(f"model: {str(bb).removesuffix('()')}")
                     logger.info(f"population_size: {ps}")
