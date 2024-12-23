@@ -36,13 +36,30 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--log", default="info", help="set the log level of the core logger"
+        "model",
+        required=True,
+        choices=["RandomForestClassifier", "SVC", "MLPClassifier"],
+        help="specify the model to explain",
     )
+
     parser.add_argument(
-        "--output",
+        "workers",
+        type=int,
+        required=True,
+        help="specify the number of workers to use",
+    )
+
+    parser.add_argument(
+        "output",
+        required=True,
         default="output",
         help="specify the name of the output file without extension",
     )
+
+    parser.add_argument(
+        "--log", default="info", help="set the log level of the core logger"
+    )
+
     args = parser.parse_args()
 
     # set the core and user logger level
@@ -52,6 +69,11 @@ if __name__ == "__main__":
 
     # blackboxes for testing
     blackboxes = [RandomForestClassifier(), SVC(), MLPClassifier()]
+    model = blackboxes[
+        ["RandomForestClassifier", "SVC", "MLPClassifier"].index(args.model)
+    ]
+
+    logger.info(f"start explaining of {str(model).removesuffix('()')}")
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
@@ -80,45 +102,46 @@ if __name__ == "__main__":
 
     population_sizes = [1000, 2000, 4000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
-        for bb in blackboxes:
-            for ps in population_sizes:
-                for j in range(1):  # change at least to 5 for a better simulation
-                    logger.info(f"dataset {i+1}/{len(datasets)}")
-                    logger.info(f"model: {str(bb).removesuffix('()')}")
-                    logger.info(f"population_size: {ps}")
+        for ps in population_sizes:
+            for j in range(1):  # change at least to 5 for a better simulation
+                logger.info(f"dataset {i+1}/{len(datasets)}")
+                logger.info(f"model: {str(model).removesuffix('()')}")
+                logger.info(f"population_size: {ps}")
 
-                    test_set, predictions = make_predictions(bb, df, 0.1)
-                    logger.info(f"predictions to explain: {len(predictions)}")
+                test_set, predictions = make_predictions(model, df, 0.1)
+                logger.info(f"predictions to explain: {len(predictions)}")
 
-                    explaination = explain.explain(bb, test_set, predictions, ps)
-                    dataset_features = fp.removesuffix(".csv").split("_")
+                explaination = explain.explain(
+                    model, test_set, predictions, ps, args.workers
+                )
+                dataset_features = fp.removesuffix(".csv").split("_")
 
-                    results["simulation_ID"].extend(
-                        [j for _ in range(len(explaination["point"]))]
-                    )
-                    results["dataset_ID"].extend(
-                        [i for _ in range(len(explaination["point"]))]
-                    )
-                    results["samples"].extend(
-                        [len(predictions) for _ in range(len(explaination["point"]))]
-                    )
-                    results["features"].extend(
-                        [dataset_features[2] for _ in range(len(explaination["point"]))]
-                    )
-                    results["classes"].extend(
-                        [dataset_features[3] for _ in range(len(explaination["point"]))]
-                    )
-                    results["clusters"].extend(
-                        [dataset_features[4] for _ in range(len(explaination["point"]))]
-                    )
-                    results["population_size"].extend(
-                        [ps for _ in range(len(explaination["point"]))]
-                    )
+                results["simulation_ID"].extend(
+                    [j for _ in range(len(explaination["point"]))]
+                )
+                results["dataset_ID"].extend(
+                    [i for _ in range(len(explaination["point"]))]
+                )
+                results["samples"].extend(
+                    [len(predictions) for _ in range(len(explaination["point"]))]
+                )
+                results["features"].extend(
+                    [dataset_features[2] for _ in range(len(explaination["point"]))]
+                )
+                results["classes"].extend(
+                    [dataset_features[3] for _ in range(len(explaination["point"]))]
+                )
+                results["clusters"].extend(
+                    [dataset_features[4] for _ in range(len(explaination["point"]))]
+                )
+                results["population_size"].extend(
+                    [ps for _ in range(len(explaination["point"]))]
+                )
 
-                    for k in explaination:
-                        results[k].extend(explaination[k])
+                for k in explaination:
+                    results[k].extend(explaination[k])
 
     results = pd.DataFrame(results)
     print(results)
 
-    results.to_csv(f"datasets/{args.output}.csv", header=True, index=False)
+    results.to_csv(f"datasets/{args.model}_x.csv", header=True, index=False)
