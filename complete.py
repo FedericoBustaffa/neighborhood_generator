@@ -57,31 +57,47 @@ def repeat_test(
     """
     Repeats the test n times and returns aggregated statistics.
     """
+    results = {
+        "dataset_ID": [],  # dataset features
+        "samples": [],
+        "features": [],
+        "classes": [],
+        "clusters": [],
+        "population_size": [],  # single genetic run features
+        "point": [],
+        "class": [],
+        "target": [],
+        "model": [],
+        "min_fitness": [],  # genetic algorithm output
+        "mean_fitness": [],
+        "fitness_std": [],
+        "max_fitness": [],
+        "accuracy": [],
+    }
     for j in range(n):
         # generate the neighborhood
         neighborhood = ng.generate(model, test_set, predictions, ps, args.workers)
         dataset_features = fp.removesuffix(".csv").split("_")
 
-        results["simulation_ID"].extend([j for _ in range(len(neighborhood["point"]))])
-        results["dataset_ID"].extend([i for _ in range(len(explaination["point"]))])
+        results["dataset_ID"].extend([i for _ in range(len(neighborhood["point"]))])
         results["samples"].extend(
-            [len(predictions) for _ in range(len(explaination["point"]))]
+            [len(predictions) for _ in range(len(neighborhood["point"]))]
         )
         results["features"].extend(
-            [dataset_features[2] for _ in range(len(explaination["point"]))]
+            [dataset_features[2] for _ in range(len(neighborhood["point"]))]
         )
         results["classes"].extend(
-            [dataset_features[3] for _ in range(len(explaination["point"]))]
+            [dataset_features[3] for _ in range(len(neighborhood["point"]))]
         )
         results["clusters"].extend(
-            [dataset_features[4] for _ in range(len(explaination["point"]))]
+            [dataset_features[4] for _ in range(len(neighborhood["point"]))]
         )
         results["population_size"].extend(
-            [ps for _ in range(len(explaination["point"]))]
+            [ps for _ in range(len(neighborhood["point"]))]
         )
 
-        for k in explaination:
-            results[k].extend(explaination[k])
+        for k in neighborhood:
+            results[k].extend(neighborhood[k])
 
 
 if __name__ == "__main__":
@@ -157,7 +173,6 @@ if __name__ == "__main__":
             logger.info(f"dataset {i+1}/{len(datasets)}")
             logger.info(f"model: {str(model).removesuffix('()')}")
             logger.info(f"population_size: {ps}")
-            logger.info(f"simulation: {j+1}/10")
             test_set, predictions = make_predictions(model, df, 0.1)
             logger.info(f"predictions to explain: {len(predictions)}")
 
