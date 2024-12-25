@@ -5,7 +5,7 @@ from deap import algorithms, base, creator, tools
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-from explain import genetic
+from neighborhood_generator import genetic
 
 
 def train_model(clf, df: pd.DataFrame) -> np.ndarray:

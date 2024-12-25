@@ -1,10 +1,10 @@
 import numpy as np
 
-from genetic_neighborhood import genetic
+from neighborhood_generator import genetic
 from ppga import base
 
 
-def one_point_generation(
+def one_point(
     toolbox: base.ToolBox,
     population_size: int,
     point: np.ndarray,
@@ -58,7 +58,7 @@ def generate(
 
     for i, (point, outcome) in enumerate(zip(X, y)):
         for target in outcomes:
-            stats, _ = one_point_generation(
+            stats, _ = one_point(
                 toolbox, population_size, point, outcome, blackbox, target, workers_num
             )
             for k in stats:

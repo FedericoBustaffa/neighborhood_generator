@@ -8,11 +8,25 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 
-import genetic_neighborhood
+import neighborhood_generator as ng
 from ppga import log
 
 
-def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
+def make_predictions(
+    model, data: pd.DataFrame, test_size: float = 0.3
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Takes in a ML model and a dataset, trains the model and returns the test
+    set and the predictions.
+
+    Args:
+        model: the ML model used for classification
+        data: the dataset
+        test_size: the size of the test set
+
+    Returns:
+        A tuple containing the test set and the predictions
+    """
     features_index = [col for col in data.columns if col.startswith("feature_")]
     X = data[features_index].to_numpy()
     y = data["outcome"].to_numpy()
@@ -29,6 +43,45 @@ def make_predictions(model, data: pd.DataFrame, test_size: float = 0.3):
     to_explain = np.asarray(model.predict(X_test))
 
     return np.asarray(X_test), to_explain
+
+
+def repeat_test(
+    n: int,
+    model,
+    df: pd.DataFrame,
+    population_size: int,
+    test_set: np.ndarray,
+    predictions: np.ndarray,
+    workers_num: int,
+):
+    """
+    Repeats the test n times and returns aggregated statistics.
+    """
+    for j in range(n):
+        # generate the neighborhood
+        neighborhood = ng.generate(model, test_set, predictions, ps, args.workers)
+        dataset_features = fp.removesuffix(".csv").split("_")
+
+        results["simulation_ID"].extend([j for _ in range(len(neighborhood["point"]))])
+        results["dataset_ID"].extend([i for _ in range(len(explaination["point"]))])
+        results["samples"].extend(
+            [len(predictions) for _ in range(len(explaination["point"]))]
+        )
+        results["features"].extend(
+            [dataset_features[2] for _ in range(len(explaination["point"]))]
+        )
+        results["classes"].extend(
+            [dataset_features[3] for _ in range(len(explaination["point"]))]
+        )
+        results["clusters"].extend(
+            [dataset_features[4] for _ in range(len(explaination["point"]))]
+        )
+        results["population_size"].extend(
+            [ps for _ in range(len(explaination["point"]))]
+        )
+
+        for k in explaination:
+            results[k].extend(explaination[k])
 
 
 if __name__ == "__main__":
@@ -81,7 +134,6 @@ if __name__ == "__main__":
 
     # for every dataset run the blackbox and make explainations
     results = {
-        "simulation_ID": [],
         "dataset_ID": [],  # dataset features
         "samples": [],
         "features": [],
@@ -102,43 +154,15 @@ if __name__ == "__main__":
     population_sizes = [1000, 2000, 4000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for ps in population_sizes:
-            for j in range(10):
-                logger.info(f"dataset {i+1}/{len(datasets)}")
-                logger.info(f"model: {str(model).removesuffix('()')}")
-                logger.info(f"population_size: {ps}")
+            logger.info(f"dataset {i+1}/{len(datasets)}")
+            logger.info(f"model: {str(model).removesuffix('()')}")
+            logger.info(f"population_size: {ps}")
+            logger.info(f"simulation: {j+1}/10")
+            test_set, predictions = make_predictions(model, df, 0.1)
+            logger.info(f"predictions to explain: {len(predictions)}")
 
-                test_set, predictions = make_predictions(model, df, 0.1)
-                logger.info(f"predictions to explain: {len(predictions)}")
-
-                explaination = genetic_neighborhood.generate(
-                    model, test_set, predictions, ps, args.workers
-                )
-                dataset_features = fp.removesuffix(".csv").split("_")
-
-                results["simulation_ID"].extend(
-                    [j for _ in range(len(explaination["point"]))]
-                )
-                results["dataset_ID"].extend(
-                    [i for _ in range(len(explaination["point"]))]
-                )
-                results["samples"].extend(
-                    [len(predictions) for _ in range(len(explaination["point"]))]
-                )
-                results["features"].extend(
-                    [dataset_features[2] for _ in range(len(explaination["point"]))]
-                )
-                results["classes"].extend(
-                    [dataset_features[3] for _ in range(len(explaination["point"]))]
-                )
-                results["clusters"].extend(
-                    [dataset_features[4] for _ in range(len(explaination["point"]))]
-                )
-                results["population_size"].extend(
-                    [ps for _ in range(len(explaination["point"]))]
-                )
-
-                for k in explaination:
-                    results[k].extend(explaination[k])
+            # repeat the test n times
+            stats = repeat_test(10, model, df, ps, test_set, predictions, args.workers)
 
     results = pd.DataFrame(results)
     print(results)
