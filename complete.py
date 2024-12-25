@@ -37,7 +37,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "model",
-        required=True,
         choices=["RandomForestClassifier", "SVC", "MLPClassifier"],
         help="specify the model to explain",
     )
@@ -45,19 +44,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "workers",
         type=int,
-        required=True,
         help="specify the number of workers to use",
     )
 
     parser.add_argument(
         "output",
-        required=True,
         default="output",
         help="specify the name of the output file without extension",
     )
 
     parser.add_argument(
-        "--log", default="info", help="set the log level of the core logger"
+        "--log",
+        default="info",
+        help="set the log level of the core logger",
     )
 
     args = parser.parse_args()
