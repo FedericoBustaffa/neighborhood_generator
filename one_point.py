@@ -6,8 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-import explain
-from explain import genetic
+import genetic_neighborhood as gn
 from ppga import log
 
 if __name__ == "__main__":
@@ -40,13 +39,25 @@ if __name__ == "__main__":
 
     # these will be the data to explain
     to_explain = np.asarray(clf.predict(X_test))
-    toolbox = genetic.create_toolbox(np.asarray(X_test))
+    toolbox = gn.create_toolbox(np.asarray(X_test))
 
-    expl1, hof1 = explain.explain_one_point(
-        toolbox, 100, X_test[0], to_explain[0], clf, 0
+    expl1, hof1 = gn.one_point_generation(
+        toolbox=toolbox,
+        population_size=100,
+        point=X_test[0],
+        outcome=to_explain[0],
+        blackbox=clf,
+        target=0,
+        workers_num=1,
     )
-    expl2, hof2 = explain.explain_one_point(
-        toolbox, 100, X_test[0], to_explain[0], clf, 1
+    expl2, hof2 = gn.one_point_generation(
+        toolbox=toolbox,
+        population_size=100,
+        point=X_test[0],
+        outcome=to_explain[0],
+        blackbox=clf,
+        target=1,
+        workers_num=1,
     )
 
     for k in expl1:

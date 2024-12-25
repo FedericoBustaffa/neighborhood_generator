@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 
-import explain
+import genetic_neighborhood
 from ppga import log
 
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     population_sizes = [1000, 2000, 4000]
     for i, (fp, df) in enumerate(zip(filepaths, datasets)):
         for ps in population_sizes:
-            for j in range(1):  # change at least to 5 for a better simulation
+            for j in range(10):
                 logger.info(f"dataset {i+1}/{len(datasets)}")
                 logger.info(f"model: {str(model).removesuffix('()')}")
                 logger.info(f"population_size: {ps}")
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                 test_set, predictions = make_predictions(model, df, 0.1)
                 logger.info(f"predictions to explain: {len(predictions)}")
 
-                explaination = explain.explain(
+                explaination = genetic_neighborhood.generate(
                     model, test_set, predictions, ps, args.workers
                 )
                 dataset_features = fp.removesuffix(".csv").split("_")
@@ -143,4 +143,4 @@ if __name__ == "__main__":
     results = pd.DataFrame(results)
     print(results)
 
-    results.to_csv(f"datasets/{args.model}_x.csv", header=True, index=False)
+    results.to_csv(f"datasets/{args.model}.csv", header=True, index=False)

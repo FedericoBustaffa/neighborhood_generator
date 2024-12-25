@@ -1,10 +1,10 @@
 import numpy as np
 
-from explain import genetic
+from genetic_neighborhood import genetic
 from ppga import base
 
 
-def explain_one_point(
+def one_point_generation(
     toolbox: base.ToolBox,
     population_size: int,
     point: np.ndarray,
@@ -31,10 +31,10 @@ def explain_one_point(
         "fitness_std": scores.std(),
         "max_fitness": scores.max(),
         "accuracy": len(synth_outcomes[synth_outcomes == target]) / len(synth_outcomes),
-    }, hof  # REMOVE
+    }, hof
 
 
-def explain(
+def generate(
     blackbox, X: np.ndarray, y: np.ndarray, population_size: int, workers_num: int
 ) -> dict[str, list]:
     # collect all the possible outcomes
@@ -58,7 +58,7 @@ def explain(
 
     for i, (point, outcome) in enumerate(zip(X, y)):
         for target in outcomes:
-            stats, _ = explain_one_point(
+            stats, _ = one_point_generation(
                 toolbox, population_size, point, outcome, blackbox, target, workers_num
             )
             for k in stats:
