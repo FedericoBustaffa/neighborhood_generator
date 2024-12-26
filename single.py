@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-from explain import explain, genetic
+import neighborhood_generator as ng
 from ppga import log
 
 if __name__ == "__main__":
@@ -14,10 +14,17 @@ if __name__ == "__main__":
 
     # CLI arguments
     parser.add_argument(
-        "dataset", type=str, help="select the dataset to run the simulation"
+        "dataset",
+        type=str,
+        help="select the dataset to run the simulation",
     )
 
-    parser.add_argument("log", type=str, help="set the log level of the core logger")
+    parser.add_argument(
+        "--log",
+        type=str,
+        default="info",
+        help="set the log level of the core logger",
+    )
 
     args = parser.parse_args()
 
@@ -36,9 +43,9 @@ if __name__ == "__main__":
     clf = MLPClassifier()
     clf.fit(X_train, y_train)
 
-    # these will be the data to explain
+    # generate the genetic neighbors
     to_explain = np.asarray(clf.predict(X_test))
-    toolbox = genetic.toolbox(np.asarray(X_test))
+    toolbox = ng.create_toolbox(np.asarray(X_test))
 
-    explaination = explain(clf, X_test, to_explain, 500)
-    print(pd.DataFrame(explaination))
+    neighbors = ng.generate(clf, X_test, to_explain, 500, -1)
+    print(pd.DataFrame(neighbors))

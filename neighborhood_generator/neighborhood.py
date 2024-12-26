@@ -4,7 +4,7 @@ from neighborhood_generator import genetic
 from ppga import base
 
 
-def one_point(
+def single_point(
     toolbox: base.ToolBox,
     population_size: int,
     point: np.ndarray,
@@ -12,7 +12,11 @@ def one_point(
     blackbox,
     target: int,
     workers_num: int,
-):
+) -> dict[str, float]:
+    """
+    Generates neighbors close to the given point and classified
+    as the label given with the `target` parameter
+    """
     # update the point for the generation
     toolbox = genetic.update_toolbox(toolbox, point, target, blackbox)
     hof = genetic.run(toolbox, population_size, workers_num)
@@ -22,21 +26,25 @@ def one_point(
     synth_outcomes = blackbox.predict(np.asarray(synth_points))
 
     return {
-        "point": hash(tuple(point)),
-        "class": outcome,
-        "target": target,
-        "model": str(blackbox).removesuffix("()"),
         "min_fitness": scores.min(),
         "mean_fitness": scores.mean(),
         "fitness_std": scores.std(),
         "max_fitness": scores.max(),
         "accuracy": len(synth_outcomes[synth_outcomes == target]) / len(synth_outcomes),
-    }, hof
+    }
 
 
 def generate(
-    blackbox, X: np.ndarray, y: np.ndarray, population_size: int, workers_num: int
+    model,
+    X: np.ndarray,
+    y: np.ndarray,
+    population_size: int,
+    workers_num: int,
 ) -> dict[str, list]:
+    """
+    Generates synthetic neighbors for each point of the dataset.
+    A neighborhood is generated for every possible outcome.
+    """
     # collect all the possible outcomes
     outcomes = np.unique(y)
 
@@ -44,7 +52,7 @@ def generate(
     toolbox = genetic.create_toolbox(X)
 
     # dataset of results
-    df = {
+    results = {
         "point": [],
         "class": [],
         "target": [],
@@ -58,13 +66,15 @@ def generate(
 
     for i, (point, outcome) in enumerate(zip(X, y)):
         for target in outcomes:
-            stats, _ = one_point(
-                toolbox, population_size, point, outcome, blackbox, target, workers_num
+            stats = single_point(
+                toolbox, population_size, point, outcome, model, target, workers_num
             )
-            for k in stats:
-                if k == "point":
-                    df[k].append(i)
-                else:
-                    df[k].append(stats[k])
 
-    return df
+            results["point"].append(i)
+            results["class"].append(outcome)
+            results["target"].append(target)
+            results["model"].append(str(model).removesuffix("()"))
+            for k in stats:
+                results[k].append(stats[k])
+
+    return results

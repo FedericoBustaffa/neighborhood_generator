@@ -1,4 +1,4 @@
 from .genetic import create_toolbox, run
-from .neighborhood import generate, one_point
+from .neighborhood import generate, single_point
 
-__all__ = ["generate", "one_point", "create_toolbox", "run"]
+__all__ = ["generate", "single_point", "create_toolbox", "run"]

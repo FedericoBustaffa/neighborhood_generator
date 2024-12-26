@@ -45,63 +45,8 @@ def make_predictions(
     return np.asarray(X_test), to_explain
 
 
-def repeat_test(
-    n: int,
-    model,
-    df: pd.DataFrame,
-    population_size: int,
-    test_set: np.ndarray,
-    predictions: np.ndarray,
-    workers_num: int,
-):
-    """
-    Repeats the test n times and returns aggregated statistics.
-    """
-    results = {
-        "dataset_ID": [],  # dataset features
-        "samples": [],
-        "features": [],
-        "classes": [],
-        "clusters": [],
-        "population_size": [],  # single genetic run features
-        "point": [],
-        "class": [],
-        "target": [],
-        "model": [],
-        "min_fitness": [],  # genetic algorithm output
-        "mean_fitness": [],
-        "fitness_std": [],
-        "max_fitness": [],
-        "accuracy": [],
-    }
-    for j in range(n):
-        # generate the neighborhood
-        neighborhood = ng.generate(model, test_set, predictions, ps, args.workers)
-        dataset_features = fp.removesuffix(".csv").split("_")
-
-        results["dataset_ID"].extend([i for _ in range(len(neighborhood["point"]))])
-        results["samples"].extend(
-            [len(predictions) for _ in range(len(neighborhood["point"]))]
-        )
-        results["features"].extend(
-            [dataset_features[2] for _ in range(len(neighborhood["point"]))]
-        )
-        results["classes"].extend(
-            [dataset_features[3] for _ in range(len(neighborhood["point"]))]
-        )
-        results["clusters"].extend(
-            [dataset_features[4] for _ in range(len(neighborhood["point"]))]
-        )
-        results["population_size"].extend(
-            [ps for _ in range(len(neighborhood["point"]))]
-        )
-
-        for k in neighborhood:
-            results[k].extend(neighborhood[k])
-
-
-if __name__ == "__main__":
-    # set the debug log level of the core logger
+def get_args():
+    # parse CLI argument
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -128,7 +73,12 @@ if __name__ == "__main__":
         help="set the log level of the core logger",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    # CLI arguments
+    args = get_args()
 
     # set the core and user logger level
     log.setLevel(args.log.upper())
@@ -145,6 +95,7 @@ if __name__ == "__main__":
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
+    filepaths = ["classification_100_32_2_1_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
@@ -173,13 +124,31 @@ if __name__ == "__main__":
             logger.info(f"dataset {i+1}/{len(datasets)}")
             logger.info(f"model: {str(model).removesuffix('()')}")
             logger.info(f"population_size: {ps}")
+
             test_set, predictions = make_predictions(model, df, 0.1)
             logger.info(f"predictions to explain: {len(predictions)}")
 
-            # repeat the test n times
-            stats = repeat_test(10, model, df, ps, test_set, predictions, args.workers)
+            # generate neighbors stats
+            # to repeat at least 5 times
+            stats = ng.generate(model, test_set, predictions, ps, args.workers)
+
+            # extract dataset specs from filename
+            dataset_specs = fp.removesuffix(".csv").split("_")
+            samples = int(dataset_specs[1])
+            features = int(dataset_specs[2])
+            classes = int(dataset_specs[3])
+            clusters = int(dataset_specs[4])
+
+            results["samples"].extend([samples for _ in range(samples)])
+            results["features"].extend([features for _ in range(samples)])
+            results["classes"].extend([classes for _ in range(samples)])
+            results["clusters"].extend([clusters for _ in range(samples)])
+            results["population_size"].extend([ps for _ in range(samples)])
+
+            for k in stats:
+                results[k] = stats[k]
 
     results = pd.DataFrame(results)
     print(results)
 
-    results.to_csv(f"datasets/{args.model}.csv", header=True, index=False)
+    results.to_csv(f"results/{args.model}.csv", header=True, index=False)

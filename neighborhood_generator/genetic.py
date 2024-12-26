@@ -22,7 +22,7 @@ def generate_normal(mu, sigma):
 def evaluate(
     chromosome: np.ndarray,
     point: np.ndarray,
-    target: np.ndarray,
+    target: int,
     blackbox,
     epsilon: float = 0.0,
     alpha: float = 0.0,
