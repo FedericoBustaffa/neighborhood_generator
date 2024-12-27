@@ -95,17 +95,17 @@ if __name__ == "__main__":
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
-    filepaths = ["classification_100_32_2_1_0.csv"]
+    filepaths = ["classification_100_2_2_1_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
     # for every dataset run the blackbox and make explainations
     results = {
-        "dataset_ID": [],  # dataset features
         "samples": [],
         "features": [],
         "classes": [],
         "clusters": [],
+        "seed": [],
         "population_size": [],  # single genetic run features
         "point": [],
         "class": [],
@@ -119,8 +119,8 @@ if __name__ == "__main__":
     }
 
     population_sizes = [1000, 2000, 4000]
-    for i, (fp, df) in enumerate(zip(filepaths, datasets)):
-        for ps in population_sizes:
+    for ps in population_sizes:
+        for i, (fp, df) in enumerate(zip(filepaths, datasets)):
             logger.info(f"dataset {i+1}/{len(datasets)}")
             logger.info(f"model: {str(model).removesuffix('()')}")
             logger.info(f"population_size: {ps}")
@@ -132,23 +132,29 @@ if __name__ == "__main__":
             # to repeat at least 5 times
             stats = ng.generate(model, test_set, predictions, ps, args.workers)
 
+            for k in stats:
+                logger.info(f"{k}: {len(stats[k])}")
+
             # extract dataset specs from filename
             dataset_specs = fp.removesuffix(".csv").split("_")
-            samples = int(dataset_specs[1])
+            samples = len(predictions)
             features = int(dataset_specs[2])
             classes = int(dataset_specs[3])
             clusters = int(dataset_specs[4])
+            seed = int(dataset_specs[5])
 
-            results["samples"].extend([samples for _ in range(samples)])
-            results["features"].extend([features for _ in range(samples)])
-            results["classes"].extend([classes for _ in range(samples)])
-            results["clusters"].extend([clusters for _ in range(samples)])
-            results["population_size"].extend([ps for _ in range(samples)])
+            results["samples"].extend([samples for _ in range(len(stats["point"]))])
+            results["features"].extend([features for _ in range(len(stats["point"]))])
+            results["classes"].extend([classes for _ in range(len(stats["point"]))])
+            results["clusters"].extend([clusters for _ in range(len(stats["point"]))])
+            results["seed"].extend([seed for _ in range(len(stats["point"]))])
+            results["population_size"].extend([ps for _ in range(len(stats["point"]))])
 
             for k in stats:
-                results[k] = stats[k]
+                results[k].extend(stats[k])
 
-    results = pd.DataFrame(results)
-    print(results)
-
-    results.to_csv(f"results/{args.model}.csv", header=True, index=False)
+            results_df = pd.DataFrame(results)
+            results_df.to_csv(
+                f"results/{args.output}_{args.model}.csv", header=True, index=False
+            )
+            print(results_df)
