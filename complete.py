@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
-    filepaths = ["classification_100_2_2_1_0.csv"]
+    # filepaths = ["classification_100_2_2_1_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
