@@ -2,6 +2,6 @@
   "samples": [100],
   "features": [2, 4, 8, 16, 32],
   "classes": [2],
-  "clusters": [1],
+  "clusters": [1, 2],
   "seeds": [0, 1, 2, 3, 4]
 }
