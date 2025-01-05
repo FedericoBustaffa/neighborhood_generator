@@ -1,11 +1,13 @@
+import multiprocessing as mp
+
 import numpy as np
+from deap import base
 
-from neighborhood_generator import genetic
-from ppga import base
+from neighborhood_generator import genetic_deap
 
 
-def single_point(
-    toolbox: base.ToolBox,
+def single_point_deap(
+    toolbox: base.Toolbox,
     population_size: int,
     point: np.ndarray,
     outcome: int,
@@ -18,8 +20,8 @@ def single_point(
     as the label given with the `target` parameter
     """
     # update the point for the generation
-    toolbox = genetic.update_toolbox(toolbox, point, target, blackbox)
-    hof, stats = genetic.run(toolbox, population_size, workers_num)
+    toolbox = genetic_deap.update_toolbox(toolbox, point, target, blackbox)
+    hof, stats = genetic_deap.run(toolbox, population_size, workers_num)
 
     synth_points, scores = list(zip(*[(ind.chromosome, ind.fitness) for ind in hof]))
     scores = np.asarray(scores)
@@ -34,7 +36,7 @@ def single_point(
     }
 
 
-def generate(
+def generate_deap(
     model,
     X: np.ndarray,
     y: np.ndarray,
@@ -49,7 +51,8 @@ def generate(
     outcomes = np.unique(y)
 
     # create a toolbox with fixed params
-    toolbox = genetic.create_toolbox(X)
+    pool = mp.Pool(workers_num)
+    toolbox = genetic_deap.create_toolbox(X, pool)
 
     # dataset of results
     results = {

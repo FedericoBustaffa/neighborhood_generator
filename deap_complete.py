@@ -1,9 +1,6 @@
-import multiprocessing as mp
 import os
 
-import numpy as np
 import pandas as pd
-from deap import algorithms, base, creator, tools
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
@@ -11,48 +8,6 @@ from sklearn.svm import SVC
 import neighborhood_generator as ng
 from complete import get_args, make_predictions
 from ppga import log
-
-
-def deap_init(
-    X_test: np.ndarray,
-    point: np.ndarray,
-    target: int,
-    model,
-    pool,
-) -> base.Toolbox:
-    creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-    creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
-
-    toolbox = base.Toolbox()
-    toolbox.register("features", np.copy, point)
-    toolbox.register(
-        "individual",
-        tools.initIterate,
-        getattr(creator, "Individual"),
-        getattr(toolbox, "features"),
-    )
-
-    toolbox.register(
-        "population", tools.initRepeat, list, getattr(toolbox, "individual")
-    )
-
-    toolbox.register(
-        "evaluate", ng.genetic.evaluate, point=point, target=target, blackbox=model
-    )
-    toolbox.register("select", tools.selTournament, tournsize=3)
-    toolbox.register("mate", tools.cxOnePoint)
-    toolbox.register(
-        "mutate",
-        tools.mutGaussian,
-        mu=X_test.mean(),
-        sigma=X_test.std(),
-        indpb=0.5,
-    )
-
-    toolbox.register("map", pool.map)
-
-    return toolbox
-
 
 if __name__ == "__main__":
     # CLI arguments
@@ -108,7 +63,7 @@ if __name__ == "__main__":
 
             # generate neighbors stats
             # to repeat at least 5 times
-            stats = ng.generate(model, test_set, predictions, ps, args.workers)
+            stats = ng.generate_deap(model, test_set, predictions, ps, args.workers)
 
             for k in stats:
                 logger.info(f"{k}: {len(stats[k])}")

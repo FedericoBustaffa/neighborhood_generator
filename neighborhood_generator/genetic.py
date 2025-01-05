@@ -14,7 +14,7 @@ def generate_copy(point: np.ndarray) -> np.ndarray:
 
 
 # normal distribution generation
-def generate_normal(mu, sigma):
+def generate_normal(mu, sigma) -> np.ndarray:
     return random.normal(mu, sigma, size=mu.shape)
 
 
@@ -58,7 +58,9 @@ def create_toolbox(X: np.ndarray) -> base.ToolBox:
     return toolbox
 
 
-def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox):
+def update_toolbox(
+    toolbox: base.ToolBox, point: np.ndarray, target: int, blackbox
+) -> base.ToolBox:
     # update the toolbox with new generation and evaluation
     toolbox.set_generation(generate_copy, point=point)
 
@@ -74,7 +76,9 @@ def update_toolbox(toolbox: base.ToolBox, point: np.ndarray, target: int, blackb
     return toolbox
 
 
-def run(toolbox: base.ToolBox, population_size: int, workers_num: int):
+def run(
+    toolbox: base.ToolBox, population_size: int, workers_num: int
+) -> tuple[base.HallOfFame, base.Statistics]:
     # run the genetic algorithm on one point with a specific target class
     hof = base.HallOfFame(population_size)
     population, stats = algorithms.simple(
@@ -88,4 +92,4 @@ def run(toolbox: base.ToolBox, population_size: int, workers_num: int):
         workers_num=workers_num,
     )
 
-    return hof
+    return hof, stats
