@@ -11,19 +11,8 @@ warnings.filterwarnings("ignore")
 def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
-    # creator.create("features", float, fitness=getattr(creator, "FitnessMin"))
 
     toolbox = base.Toolbox()
-    toolbox.register(
-        "individual",
-        tools.initIterate,
-        getattr(creator, "Individual"),
-        getattr(toolbox, "features"),
-    )
-
-    toolbox.register(
-        "population", tools.initRepeat, list, getattr(toolbox, "individual")
-    )
 
     toolbox.register("select", tools.selTournament, tournsize=3)
     toolbox.register("mate", tools.cxOnePoint)
@@ -43,6 +32,15 @@ def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
 def update_toolbox(toolbox: base.Toolbox, point: np.ndarray, target: int, blackbox):
     # update the toolbox with new generation and evaluation
     toolbox.register("features", np.copy, point)
+    toolbox.register(
+        "individual",
+        tools.initIterate,
+        getattr(creator, "Individual"),
+        getattr(toolbox, "features"),
+    )
+    toolbox.register(
+        "population", tools.initRepeat, list, getattr(toolbox, "individual")
+    )
 
     toolbox.register(
         "evaluate",
@@ -57,12 +55,13 @@ def update_toolbox(toolbox: base.Toolbox, point: np.ndarray, target: int, blackb
 
 def run(toolbox: base.Toolbox, population_size: int, workers_num: int):
     # run the genetic algorithm on one point with a specific target class
-    hof = tools.HallOfFame(int(0.1 * population_size))
-    stats = tools.Statistics()
+    hof = tools.HallOfFame(int(0.1 * population_size), similar=np.array_equal)
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values)
     stats.register("min", np.min)
-    stats.register("max", np.min)
+    stats.register("max", np.max)
     stats.register("mean", np.mean)
     stats.register("std", np.std)
+
     population = getattr(toolbox, "population")(n=population_size)
     population, logbook = algorithms.eaSimple(
         population=population,

@@ -58,7 +58,7 @@ if __name__ == "__main__":
             logger.info(f"model: {str(model).removesuffix('()')}")
             logger.info(f"population_size: {ps}")
 
-            test_set, predictions = make_predictions(model, df, 0.2)
+            test_set, predictions = make_predictions(model, df, 0.1)
             logger.info(f"predictions to explain: {len(predictions)}")
 
             # generate neighbors stats
