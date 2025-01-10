@@ -8,6 +8,16 @@ from neighborhood_generator import genetic
 warnings.filterwarnings("ignore")
 
 
+def mutGaussVec(
+    chromosome: np.ndarray, mu: np.ndarray, sigma: np.ndarray, indpb: float
+):
+    probs = np.random.random(chromosome.shape)
+    mutations = np.random.normal(loc=mu, scale=sigma, size=chromosome.shape)
+    chromosome[probs <= indpb] = mutations[probs <= indpb]
+
+    return (chromosome,)
+
+
 def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
@@ -18,9 +28,9 @@ def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
     toolbox.register("mate", tools.cxOnePoint)
     toolbox.register(
         "mutate",
-        tools.mutGaussian,
-        mu=X.mean(),
-        sigma=X.std(),
+        mutGaussVec,
+        mu=X.mean(axis=0),
+        sigma=X.std(axis=0),
         indpb=0.5,
     )
 

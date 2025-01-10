@@ -13,7 +13,7 @@ from ppga import log
 
 
 def make_predictions(
-    model, data: pd.DataFrame, test_size: float = 0.3
+    model, data: pd.DataFrame, test_size: int
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Takes in a ML model and a dataset, trains the model and returns the test
@@ -23,6 +23,7 @@ def make_predictions(
         model: the ML model used for classification
         data: the dataset
         test_size: the size of the test set
+        train_size: the size of the training set
 
     Returns:
         A tuple containing the test set and the predictions
@@ -95,7 +96,7 @@ if __name__ == "__main__":
 
     # get the datasets
     filepaths = [fp for fp in os.listdir("datasets") if fp.startswith("classification")]
-    # filepaths = ["classification_100_2_2_1_0.csv"]
+    # filepaths = ["classification_10010_2_2_1_0.csv"]
     datasets = [pd.read_csv(f"datasets/{fp}") for fp in filepaths]
     logger.info(f"preparing to explain {len(datasets)} datasets")
 
@@ -118,14 +119,14 @@ if __name__ == "__main__":
         "accuracy": [],
     }
 
-    population_sizes = [1000, 2000, 4000]
+    population_sizes = [2000, 8000, 16000]
     for ps in population_sizes:
         for i, (fp, df) in enumerate(zip(filepaths, datasets)):
-            logger.info(f"dataset {i+1}/{len(datasets)}")
+            logger.info(f"dataset {i + 1}/{len(datasets)}")
             logger.info(f"model: {str(model).removesuffix('()')}")
             logger.info(f"population_size: {ps}")
 
-            test_set, predictions = make_predictions(model, df, 0.1)
+            test_set, predictions = make_predictions(model, df, 10)
             logger.info(f"predictions to explain: {len(predictions)}")
 
             # generate neighbors stats
