@@ -1,8 +1,8 @@
 import warnings
 
 import numpy as np
-from deap import algorithms, base, creator, tools
 
+from deap import algorithms, base, creator, tools
 from neighborhood_generator import genetic
 
 warnings.filterwarnings("ignore")
@@ -18,7 +18,7 @@ def mutGaussVec(
     return (chromosome,)
 
 
-def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
+def create_toolbox_deap(X: np.ndarray, pool) -> base.Toolbox:
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
 
@@ -39,7 +39,9 @@ def create_toolbox(X: np.ndarray, pool) -> base.Toolbox:
     return toolbox
 
 
-def update_toolbox(toolbox: base.Toolbox, point: np.ndarray, target: int, blackbox):
+def update_toolbox_deap(
+    toolbox: base.Toolbox, point: np.ndarray, target: int, blackbox
+):
     # update the toolbox with new generation and evaluation
     toolbox.register("features", np.copy, point)
     toolbox.register(
@@ -63,7 +65,7 @@ def update_toolbox(toolbox: base.Toolbox, point: np.ndarray, target: int, blackb
     return toolbox
 
 
-def run(toolbox: base.Toolbox, population_size: int, workers_num: int):
+def run_deap(toolbox: base.Toolbox, population_size: int, workers_num: int):
     # run the genetic algorithm on one point with a specific target class
     hof = tools.HallOfFame(int(0.1 * population_size), similar=np.array_equal)
     stats = tools.Statistics(key=lambda ind: ind.fitness.values)
