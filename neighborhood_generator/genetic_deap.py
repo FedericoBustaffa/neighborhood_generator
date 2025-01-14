@@ -18,7 +18,7 @@ def mutGaussVec(
     return (chromosome,)
 
 
-def create_toolbox_deap(X: np.ndarray, pool) -> base.Toolbox:
+def create_toolbox_deap(X: np.ndarray) -> base.Toolbox:
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
 
@@ -33,8 +33,6 @@ def create_toolbox_deap(X: np.ndarray, pool) -> base.Toolbox:
         sigma=X.std(axis=0),
         indpb=0.5,
     )
-
-    toolbox.register("map", pool.map)
 
     return toolbox
 
