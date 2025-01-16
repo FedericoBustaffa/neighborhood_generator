@@ -1,5 +1,3 @@
-import multiprocessing as mp
-
 import numpy as np
 
 from deap import base
@@ -51,8 +49,7 @@ def generate_deap(
     outcomes = np.unique(y)
 
     # create a toolbox with fixed params
-    pool = mp.Pool(workers_num)
-    toolbox = genetic_deap.create_toolbox_deap(X, pool)
+    toolbox = genetic_deap.create_toolbox_deap(X)
 
     # dataset of results
     results = {
