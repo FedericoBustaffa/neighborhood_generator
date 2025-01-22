@@ -1,5 +1,5 @@
-import warnings
 import multiprocessing as mp
+import warnings
 
 import numpy as np
 
@@ -77,7 +77,7 @@ def run_deap(toolbox: base.Toolbox, population_size: int, workers_num: int):
     toolbox.register("map", pool.map)
 
     population = getattr(toolbox, "population")(n=population_size)
-    population, logbook = algorithms.eaSimple(
+    population, _, _ = algorithms.eaSimple(
         population=population,
         toolbox=toolbox,
         cxpb=0.8,
@@ -87,7 +87,7 @@ def run_deap(toolbox: base.Toolbox, population_size: int, workers_num: int):
         halloffame=hof,
     )
 
-    pool.join()
     pool.close()
+    pool.join()
 
     return hof, stats

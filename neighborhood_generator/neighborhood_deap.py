@@ -8,7 +8,6 @@ def single_point_deap(
     toolbox: base.Toolbox,
     population_size: int,
     point: np.ndarray,
-    outcome: int,
     blackbox,
     target: int,
     workers_num: int,
@@ -19,7 +18,7 @@ def single_point_deap(
     """
     # update the point for the generation
     toolbox = genetic_deap.update_toolbox_deap(toolbox, point, target, blackbox)
-    hof, stats = genetic_deap.run_deap(toolbox, population_size, workers_num)
+    hof, _ = genetic_deap.run_deap(toolbox, population_size, workers_num)
 
     synth_points, scores = list(zip(*[(ind, ind.fitness.wvalues) for ind in hof]))
     scores = np.asarray(scores)
@@ -67,7 +66,7 @@ def generate_deap(
     for i, (point, outcome) in enumerate(zip(X, y)):
         for target in outcomes:
             stats = single_point_deap(
-                toolbox, population_size, point, outcome, model, target, workers_num
+                toolbox, population_size, point, model, target, workers_num
             )
 
             results["point"].append(i)
