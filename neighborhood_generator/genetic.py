@@ -80,8 +80,8 @@ def run(
     toolbox: base.ToolBox, population_size: int, workers_num: int
 ) -> tuple[base.HallOfFame, base.Statistics]:
     # run the genetic algorithm on one point with a specific target class
-    hof = base.HallOfFame(population_size)
-    population, stats = algorithms.simple(
+    hof = base.HallOfFame(int(0.1 * population_size))
+    _, stats = algorithms.simple(
         toolbox=toolbox,
         population_size=population_size,
         keep=0.1,
