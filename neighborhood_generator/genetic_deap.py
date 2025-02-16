@@ -2,26 +2,53 @@ import multiprocessing as mp
 import warnings
 
 import numpy as np
+from numpy import linalg
 
 from deap import algorithms, base, creator, tools
-from neighborhood_generator import genetic
 
 warnings.filterwarnings("ignore")
 
 
-def mutGaussVec(
-    chromosome: np.ndarray, mu: np.ndarray, sigma: np.ndarray, indpb: float
-):
-    probs = np.random.random(chromosome.shape)
-    mutations = np.random.normal(loc=mu, scale=sigma, size=chromosome.shape)
-    chromosome[probs <= indpb] = mutations[probs <= indpb]
+def mutGaussVec(chromosome, mu: np.ndarray, sigma: np.ndarray, indpb: float):
+    c = np.asarray(chromosome)
+    probs = np.random.random(c.shape)
+    mutations = np.random.normal(loc=mu, scale=sigma, size=c.shape)
+    c[probs <= indpb] = mutations[probs <= indpb]
+    chromosome[:] = c
 
     return (chromosome,)
 
 
+def evaluate_deap(
+    chromosome: list,
+    point: np.ndarray,
+    target: int,
+    blackbox,
+    epsilon: float = 0.0,
+    alpha: float = 0.0,
+):
+    assert alpha >= 0.0 and alpha <= 1.0
+
+    # classification
+    chromosome = np.asarray(chromosome)
+    synth_class = blackbox.predict(chromosome.reshape(1, -1))
+
+    # compute euclidean distance
+    distance = linalg.norm(chromosome - point, ord=2)
+
+    # compute classification penalty
+    right_target = 1.0 - alpha if target == synth_class[0] else alpha
+
+    # check the epsilon distance
+    if distance <= epsilon:
+        return (np.inf,)
+
+    return (distance / right_target,)
+
+
 def create_toolbox_deap(X: np.ndarray) -> base.Toolbox:
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-    creator.create("Individual", np.ndarray, fitness=getattr(creator, "FitnessMin"))
+    creator.create("Individual", list, fitness=getattr(creator, "FitnessMin"))
 
     toolbox = base.Toolbox()
 
@@ -55,7 +82,7 @@ def update_toolbox_deap(
 
     toolbox.register(
         "evaluate",
-        genetic.evaluate,
+        evaluate_deap,
         point=point,
         target=target,
         blackbox=blackbox,
